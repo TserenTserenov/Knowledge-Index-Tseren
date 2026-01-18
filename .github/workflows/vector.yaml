@@ -1,0 +1,27 @@
+name: Index Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+
+jobs:
+  vectorize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run vectorizer
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/docs:/docs \
+            -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+            -e SURREAL_HOST=${{ vars.SURREAL_HOST }} \
+            -e SURREAL_USER=${{ vars.SURREAL_USER }} \
+            -e SURREAL_PASSWORD=${{ secrets.SURREAL_PASSWORD }} \
+            -e SURREAL_NS=${{ vars.SURREAL_NS }} \
+            -e SURREAL_DB=${{ vars.SURREAL_DB }} \
+            ghcr.io/${{ github.repository_owner }}/knowledge-vectorizer:main \
+            --docs /docs
