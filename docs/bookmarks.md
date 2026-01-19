@@ -1,0 +1,14 @@
+# Bookmarks
+
+*Источник: `bookmarks.csv`*
+
+| bookmarkable_id | bookmarkable_type | link | name | created_at | updated_at | reminder_at | reminder_last_sent_at | reminder_set_at | auto_delete_preference |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 20962 | Post | http://systemsworld.club/t/glavnye-ponyatiya/79... | Человечество | 2023-12-10 09:12:48 UTC | 2024-07-15 04:09:11 UTC |  |  | 2024-07-15 04:09:11 UTC | clear_reminder |
+| 42324 | Post | http://systemsworld.club/t/investiczii/22974/1 |  | 2025-04-21 07:40:41 UTC | 2025-04-27 13:46:48 UTC |  |  | 2025-04-21 07:40:41 UTC | clear_reminder |
+| 44447 | Post | http://systemsworld.club/t/czelevye-auditorii-o... |  | 2025-04-21 07:41:26 UTC | 2025-04-21 07:41:26 UTC |  |  | 2025-04-21 07:41:26 UTC | clear_reminder |
+| 42491 | Post | http://systemsworld.club/t/glavnye-idei-soobshh... |  | 2025-04-21 07:45:48 UTC | 2025-04-21 07:45:48 UTC |  |  | 2025-04-21 07:45:48 UTC | clear_reminder |
+| 44695 | Post | http://systemsworld.club/t/moi-roliki/24749/1 |  | 2025-04-27 07:19:21 UTC | 2025-04-27 07:19:21 UTC |  |  | 2025-04-27 07:19:21 UTC | clear_reminder |
+| 50692 | Post | http://systemsworld.club/t/puankare-moya-sverhc... |  | 2025-07-27 05:18:51 UTC | 2025-07-27 05:18:51 UTC |  |  | 2025-07-27 05:18:51 UTC | clear_reminder |
+
+*Всего записей: 6*
