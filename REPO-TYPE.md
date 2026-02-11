@@ -8,7 +8,7 @@
 
 ## Upstream dependencies
 
-- [aisystant/spf-personal-pack](https://github.com/aisystant/spf-personal-pack) — source-of-truth области созидателя
+- [aisystant/PACK-personal](https://github.com/aisystant/PACK-personal) — source-of-truth области созидателя
 
 ## Downstream outputs
 
