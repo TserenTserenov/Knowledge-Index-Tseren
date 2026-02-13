@@ -8,7 +8,7 @@ tags: [SOTA, FPF, SPF, Pack, Downstream, DDD, context-engineering, coupling-mode
 source_knowledge: https://github.com/TserenTserenov/PACK-digital-platform/tree/main/pack/digital-platform/06-sota
 ---
 
-# Как 18 SOTA-методов превращают знания в работающие системы
+# Как SOTA-методы превращают знания в работающие системы
 
 > Пост о том, как FPF, SPF, Pack и Downstream образуют конвейер: от принципов мышления до бота, который отвечает пользователю. И что делает каждый метод на этом пути.
 
@@ -33,12 +33,12 @@ FPF (первые принципы)
          └→ Downstream (производные системы: бот, агенты, MCP, курсы)
 ```
 
-| Слой | Что | Роль | Пример |
+| Слой | Что это| Что дает | Пример |
 |------|-----|------|--------|
-| **FPF** | Метапринципы корректного мышления | Первые принципы — как думать правильно | «Различай систему и эпистему», «Не путай модель с объектом» |
-| **SPF** | Спецификация ядра предметной области | Вторые принципы — как структурировать знание | Bounded Context, Entity Coding, 3-Layer Loading |
+| **FPF** | Фреймворк по метапринципам корректного мышления | Первые принципы — как думать правильно | «Различай систему и эпистему», «Не путай модель с объектом» |
+| **SPF** |Фреймврк для спецификации ядра предметной области | Вторые принципы — как структурировать знание | Bounded Context, Entity Coding, 3-Layer Loading |
 | **Pack** | Формализованные знания домена | Source-of-truth: сущности с ID, frontmatter, связями | `DP.SOTA.001-ddd-strategic.md`, `DP.D.017`, `DP.M.002` |
-| **Downstream** | Производные системы | Проекции Pack в работающий код | Бот, Стратег, Экстрактор, MCP-сервер |
+| **Downstream** | Представления знаний в виде моделей или систем | Проекции Pack в работающий код или документы| Бот, Стратег, Экстрактор, MCP-сервер и тп |
 
 **Ключевой принцип:** Pack — единственный source-of-truth. Downstream меняется вслед за Pack, не наоборот. Это не документация рядом с кодом — это знание, из которого код порождается.
 
@@ -302,6 +302,77 @@ SPF определяет **слоты**, которые SOTA-методы зап
 | **Масштабируемость** | RAPTOR (3-layer loading) + GraphRAG (multi-hop) + Sub-Pack Protocol |
 | **Обучаемость** | Context Engineering (Write/Select/Compress) + UL (единый язык) + llms.txt (manifest) |
 | **Генеративность** | Multi-Representation (Pack → любой surface) + AI-Native Org (новый агент = новая org unit) + Digital Twins (Pack + данные = двойник) |
+
+---
+
+## Как это работает на практике: Knowledge Extractor
+
+Теория красивая. Но работает ли конвейер? Покажу на примере одного агента — Knowledge Extractor (KE), — который реализует сразу 4 SOTA-метода.
+
+### Что делает KE
+
+KE — ИИ-система, которая трансформирует **информацию** (captures, заметки, документы) в **формализованные Pack-сущности** (с ID, frontmatter, typed `related:`). Это реализация AI-Accelerated Ontology Engineering (SOTA.007): LLM делает first pass, человек валидирует.
+
+### Единый пайплайн
+
+Все 7 процессов KE используют один и тот же конвейер:
+
+```
+Обнаружение → Классификация → Маршрутизация → Формализация → Валидация
+```
+
+| Шаг | Что делает | Какой SOTA |
+|-----|-----------|-----------|
+| **Обнаружение** | Тест: можно использовать в другом проекте? Да → кандидат. Нет → governance, не знание | Real-Time Capture (SOTA.008) |
+| **Классификация** | Определяет тип: distinction, method, entity, failure mode, work product | AI-Accelerated OE (SOTA.007) |
+| **Маршрутизация** | Определяет целевой Pack (по домену) + директорию (по типу) + следующий ID | DDD Strategic (SOTA.001) — bounded context определяет Pack |
+| **Формализация** | Генерирует SPF-совместимый файл: frontmatter + шаблон по типу + summary | AI-Accelerated OE (SOTA.007) |
+| **Валидация** | Проверяет: frontmatter OK? Дубликат? Соответствует bounded context? Онтология? | Context Engineering (SOTA.002) — контекст проверки |
+
+### 7 процессов: когда вызывается KE
+
+| # | Триггер | Процесс | Кто запускает |
+|---|---------|---------|--------------|
+| 1 | Закрытие рабочей сессии | **Session-Close** | Claude Code (протокол Close) |
+| 2 | Явная команда «запиши в Pack» | **On-Demand** | Claude Code (в сессии) |
+| 3 | Загрузка документа | **Bulk Extraction** | Claude Code (в сессии) |
+| 4 | Inbox по расписанию (каждые 2-3 часа) | **Inbox-Check** | launchd (автоматически) |
+| 5 | Изменение в Pack | **Cross-Repo Sync** | git hook |
+| 6 | Изменение онтологии | **Ontology Sync** | git hook |
+| 7 | Ежемесячный аудит | **Knowledge Audit** | launchd / вручную |
+
+### Пример: как Session-Close создаёт знание
+
+```
+Сессия: работа над ботом (3 часа).
+Во время работы Claude обнаружил паттерн и анонсировал:
+  «Capture: FSM-идемпотентность → PACK-digital-platform (failure mode)»
+  «Capture: handler-per-state → PACK-digital-platform (method)»
+
+На Close → KE запускается:
+
+1. Собирает 2 отложенных capture
+2. Сканирует контекст сессии → находит ещё 1 пропущенный:
+   «Паттерн: mode_router → service_manager как единственный путь»
+3. Для каждого кандидата:
+   - FSM-идемпотентность → classify: failure mode → route: DP.FM.003
+   - handler-per-state → classify: method → route: DP.METHOD.002
+   - mode_router→SM → classify: rule (1 строка) → route: DS-aist-bot/CLAUDE.md
+4. Формирует Extraction Report:
+   | # | Кандидат           | Тип          | Маршрут       | Вердикт |
+   |---|--------------------|--------------|---------------|---------|
+   | 1 | FSM-идемпотентность | failure mode | DP.FM.003     | accept  |
+   | 2 | handler-per-state   | method       | DP.METHOD.002 | defer   |
+   | 3 | mode_router→SM      | rule         | CLAUDE.md     | accept  |
+5. Пользователь ревьюит → 2 accept, 1 defer
+6. Записывает 2 файла, коммитит
+```
+
+### Ключевое: человек всегда решает
+
+KE **никогда** не пишет в Pack без одобрения. Пайплайн: LLM предлагает → человек ревьюит → accept / reject / defer. Это не автоматическая генерация документации — это **assisted knowledge formalization**.
+
+Мелкие правила (1-3 строки) — единственное исключение: Claude записывает напрямую в CLAUDE.md или memory/, без вызова KE. Всё остальное (различения, методы, failure modes, доменные сущности) — только через KE.
 
 ---
 
